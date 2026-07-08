@@ -19,29 +19,27 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             GalleryAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                GalleryScreen()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+fun GalleryScreen() {
+    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+        Text(
+            text = "Gallery App",
+            modifier = Modifier.padding(innerPadding)
+        )
+    }
+
 }
 
-@Preview(showBackground = true)
+@Preview(device = "id:pixel_5", showBackground = true, showSystemUi = true)
 @Composable
-fun GreetingPreview() {
+fun GalleryScreenPreview() {
     GalleryAppTheme {
-        Greeting("Android")
+        GalleryScreen()
     }
 }
