@@ -28,6 +28,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        requestMediaPermissionIfNeeded()
+
+        setContent {
+            GalleryAppTheme {
+                GalleryScreen()
+            }
+        }
+    }
+
+    private fun requestMediaPermissionIfNeeded() {
         val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             Manifest.permission.READ_MEDIA_IMAGES
         } else {
@@ -36,12 +46,6 @@ class MainActivity : ComponentActivity() {
 
         if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
             permissionLauncher.launch(permission)
-        }
-
-        setContent {
-            GalleryAppTheme {
-                GalleryScreen()
-            }
         }
     }
 }
