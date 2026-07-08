@@ -4,13 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import com.example.galleryapp.presentation.GalleryScreen
 import com.example.galleryapp.ui.theme.GalleryAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,24 +16,5 @@ class MainActivity : ComponentActivity() {
                 GalleryScreen()
             }
         }
-    }
-}
-
-@Composable
-fun GalleryScreen() {
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-        Text(
-            text = "Gallery App",
-            modifier = Modifier.padding(innerPadding)
-        )
-    }
-
-}
-
-@Preview(device = "id:pixel_5", showBackground = true, showSystemUi = true)
-@Composable
-fun GalleryScreenPreview() {
-    GalleryAppTheme {
-        GalleryScreen()
     }
 }
