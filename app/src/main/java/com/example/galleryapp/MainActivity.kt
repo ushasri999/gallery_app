@@ -17,7 +17,7 @@ import com.example.galleryapp.presentation.GalleryScreen
 import com.example.galleryapp.ui.theme.GalleryAppTheme
 
 class MainActivity : ComponentActivity() {
-    var images: List<GalleryImage>? = null
+    var images: List<GalleryImage> = emptyList()
     private val TAG = "MAIN_ACTIVITY";
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             GalleryAppTheme {
-                GalleryScreen()
+                GalleryScreen(images)
             }
         }
     }
