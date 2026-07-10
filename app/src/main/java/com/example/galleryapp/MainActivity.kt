@@ -1,29 +1,32 @@
 package com.example.galleryapp
 
 import android.Manifest
-import android.content.ContentUris
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import com.example.galleryapp.data.GalleryImage
+import androidx.lifecycle.ViewModelProvider
+import com.example.galleryapp.data.entities.GalleryImageEntity
+import com.example.galleryapp.data.repositories.api.GalleryRepositoryApi
 import com.example.galleryapp.presentation.GalleryScreen
+import com.example.galleryapp.presentation.viewmodel.GalleryViewModel
+import com.example.galleryapp.presentation.viewmodel.IGalleryViewModel
 import com.example.galleryapp.ui.theme.GalleryAppTheme
 
 class MainActivity : ComponentActivity() {
-    var images: List<GalleryImage> = emptyList()
+    var images: List<GalleryImageEntity> = emptyList()
     private val TAG = "MAIN_ACTIVITY";
+    private lateinit var viewModel: IGalleryViewModel
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { result ->
         if(result) {
-            images = fetchImages()
+            images = viewModel.fetchImages()
             Log.d(TAG, "Permission Granted")
             Log.d(TAG, "images = $images")
         } else {
@@ -35,6 +38,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        val factory = GalleryViewModel.Factory(application, GalleryRepositoryApi())
+        viewModel = ViewModelProvider(this, factory)[GalleryViewModel::class.java]
+
         requestMediaPermissionIfNeeded()
 
         setContent {
@@ -42,38 +48,6 @@ class MainActivity : ComponentActivity() {
                 GalleryScreen(images)
             }
         }
-    }
-
-    private fun fetchImages(): List<GalleryImage> {
-        val images = mutableListOf<GalleryImage>()
-
-        val projection = arrayOf(MediaStore.Images.Media._ID)
-        contentResolver.query(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            projection,
-            null,
-            null,
-            null
-        )?.use { cursor ->
-            val columId = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-
-            while(cursor.moveToNext()) {
-                val id = cursor.getLong(columId)
-                val uri = ContentUris.withAppendedId(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    id
-                )
-
-                images.add(
-                    GalleryImage(
-                        id = id,
-                        uri = uri
-                    )
-                )
-            }
-        }
-
-        return images
     }
 
     private fun mediaPermissionGranted(permission: String): Boolean {
@@ -92,7 +66,7 @@ class MainActivity : ComponentActivity() {
         val permission: String = getPermissionForReadingImages()
 
         if (mediaPermissionGranted(permission)) {
-            images = fetchImages()
+            images = viewModel.fetchImages()
         } else {
             permissionLauncher.launch(permission)
         }
