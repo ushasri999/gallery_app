@@ -1,17 +1,15 @@
 package com.example.galleryapp.presentation.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.application
 import com.example.galleryapp.data.entities.GalleryImageEntity
 import com.example.galleryapp.data.repositories.IGalleryRepository
 
 class GalleryViewModel(
-    application: Application,
+    private val application: Application,
     private val repository: IGalleryRepository
-) : AndroidViewModel(application), IGalleryViewModel {
+) : ViewModel(), IGalleryViewModel {
 
     class Factory(
         private val application: Application,
