@@ -11,24 +11,22 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
-import com.example.galleryapp.data.entities.GalleryImageEntity
 import com.example.galleryapp.data.repositories.api.GalleryRepositoryApi
-import com.example.galleryapp.presentation.GalleryScreen
-import com.example.galleryapp.presentation.viewmodel.GalleryViewModel
-import com.example.galleryapp.presentation.viewmodel.IGalleryViewModel
+import com.example.galleryapp.presentation.GalleryViewEvent
+import com.example.galleryapp.presentation.view.GalleryScreen
+import com.example.galleryapp.presentation.GalleryViewModel
+import com.example.galleryapp.presentation.IGalleryViewModel
 import com.example.galleryapp.ui.theme.GalleryAppTheme
 
 class MainActivity : ComponentActivity() {
-    var images: List<GalleryImageEntity> = emptyList()
     private val TAG = "MAIN_ACTIVITY";
     private lateinit var viewModel: IGalleryViewModel
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { result ->
         if(result) {
-            images = viewModel.fetchImages()
+            viewModel.dispatchGalleryViewEvent(GalleryViewEvent.FetchImages)
             Log.d(TAG, "Permission Granted")
-            Log.d(TAG, "images = $images")
         } else {
             Log.d(TAG, "Permission Denied")
         }
@@ -45,7 +43,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             GalleryAppTheme {
-                GalleryScreen(images)
+                GalleryScreen(viewModel)
             }
         }
     }
@@ -66,7 +64,7 @@ class MainActivity : ComponentActivity() {
         val permission: String = getPermissionForReadingImages()
 
         if (mediaPermissionGranted(permission)) {
-            images = viewModel.fetchImages()
+            viewModel.dispatchGalleryViewEvent(GalleryViewEvent.FetchImages)
         } else {
             permissionLauncher.launch(permission)
         }
