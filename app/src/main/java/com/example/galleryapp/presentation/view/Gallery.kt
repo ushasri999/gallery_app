@@ -35,10 +35,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.galleryapp.data.entities.GalleryImageEntity
+import com.example.galleryapp.domain.GalleryImage
 import com.example.galleryapp.presentation.GalleryViewEvent
 import com.example.galleryapp.presentation.IGalleryViewModel
-import com.example.galleryapp.presentation.viewstate.GalleryEvent
 import com.example.galleryapp.presentation.viewstate.GalleryViewState
 
 @Composable
@@ -57,17 +56,17 @@ fun GalleryScreenInternal(
     if(viewState.isLoading) {
         LoadingScreen()
     }
-    if(viewState.mediaPermissionDenied) {
+    else if(viewState.mediaPermissionDenied) {
         PermissionAskingScreen(dispatchViewEvent)
     }
-    if(!viewState.images.isEmpty()) {
+    else if(!viewState.images.isEmpty()) {
         GalleryGridScreen(viewState.images)
     }
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-private fun GalleryGridScreen(images: List<GalleryImageEntity>) {
+private fun GalleryGridScreen(images: List<GalleryImage>) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = { TopBar() },

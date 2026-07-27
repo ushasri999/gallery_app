@@ -1,11 +1,11 @@
 package com.example.galleryapp.presentation.viewstate
 
-import com.example.galleryapp.data.entities.GalleryImageEntity
+import com.example.galleryapp.domain.GalleryImage
 
 data class GalleryViewState(
     val isLoading: Boolean = false,
     val mediaPermissionDenied: Boolean = false,
-    val images: List<GalleryImageEntity>,
+    val images: List<GalleryImage>,
     val galleryEvent: GalleryEvent = GalleryEvent()
 )
 

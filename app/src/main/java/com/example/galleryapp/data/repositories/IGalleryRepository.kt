@@ -1,8 +1,8 @@
 package com.example.galleryapp.data.repositories
 
 import android.content.Context
-import com.example.galleryapp.data.entities.GalleryImageEntity
+import com.example.galleryapp.domain.GalleryImage
 
 interface IGalleryRepository {
-    fun fetchImages(context: Context): List<GalleryImageEntity>
+    fun fetchImages(context: Context): List<GalleryImage>
 }

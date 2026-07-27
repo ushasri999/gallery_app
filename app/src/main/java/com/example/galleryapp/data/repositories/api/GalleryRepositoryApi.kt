@@ -5,9 +5,10 @@ import android.content.Context
 import android.provider.MediaStore
 import com.example.galleryapp.data.entities.GalleryImageEntity
 import com.example.galleryapp.data.repositories.IGalleryRepository
+import com.example.galleryapp.domain.GalleryImage
 
 class GalleryRepositoryApi: IGalleryRepository {
-    override fun fetchImages(context: Context): List<GalleryImageEntity> {
+    override fun fetchImages(context: Context): List<GalleryImage> {
         val images = mutableListOf<GalleryImageEntity>()
 
         val projection = arrayOf(MediaStore.Images.Media._ID)
@@ -36,7 +37,11 @@ class GalleryRepositoryApi: IGalleryRepository {
             }
         }
 
-        return images
+        return images.map { it.toDomain() }
+    }
+
+    private fun GalleryImageEntity.toDomain(): GalleryImage {
+        return GalleryImage(id, uri);
     }
 
 }
