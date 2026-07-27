@@ -41,6 +41,7 @@ class GalleryViewModel(
                 GalleryViewEvent.AskMediaPermissions -> handleAskMediaPermissions()
                 GalleryViewEvent.MediaPermissionsAsked -> handleMediaPermissionsAsked()
                 GalleryViewEvent.MediaPermissionDenied -> handleMediaPermissionDenied()
+                is GalleryViewEvent.ToggleFavourite -> handleToggleFavourite(event.imageId)
             }
         }
 
@@ -74,5 +75,17 @@ class GalleryViewModel(
 
     private fun GalleryViewState.handleMediaPermissionDenied(): GalleryViewState {
         return copy(mediaPermissionDenied = true)
+    }
+
+    private fun GalleryViewState.handleToggleFavourite(imageId: Long): GalleryViewState {
+        return copy(
+            images = images.map { image ->
+                if(image.id == imageId) {
+                    image.copy(isFavourite = !image.isFavourite)
+                } else {
+                    image
+                }
+            }
+        )
     }
 }

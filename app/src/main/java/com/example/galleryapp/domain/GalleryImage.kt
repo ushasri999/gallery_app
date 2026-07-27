@@ -4,5 +4,6 @@ import android.net.Uri
 
 data class GalleryImage(
     val id: Long,
-    val uri: Uri
+    val uri: Uri,
+    val isFavourite: Boolean = false
 )

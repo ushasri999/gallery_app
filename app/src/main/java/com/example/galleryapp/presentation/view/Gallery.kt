@@ -42,8 +42,6 @@ import com.example.galleryapp.domain.GalleryImage
 import com.example.galleryapp.presentation.GalleryViewEvent
 import com.example.galleryapp.presentation.IGalleryViewModel
 import com.example.galleryapp.presentation.viewstate.GalleryViewState
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
 
 @Composable
 fun GalleryScreen(viewModel: IGalleryViewModel) {
@@ -65,13 +63,16 @@ fun GalleryScreenInternal(
         PermissionAskingScreen(dispatchViewEvent)
     }
     else if(!viewState.images.isEmpty()) {
-        GalleryGridScreen(viewState.images)
+        GalleryGridScreen(viewState.images, dispatchViewEvent)
     }
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-private fun GalleryGridScreen(images: List<GalleryImage>) {
+private fun GalleryGridScreen(
+    images: List<GalleryImage>,
+    dispatchViewEvent: (GalleryViewEvent) -> Unit
+) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = { TopBar() },
@@ -89,7 +90,6 @@ private fun GalleryGridScreen(images: List<GalleryImage>) {
                 items = images,
                 key = { image -> image.id }
             ) { image ->
-                var isFavourite by remember { mutableStateOf(false) }
                 Box{
                     GlideImage(
                         model = image.uri,
@@ -100,7 +100,7 @@ private fun GalleryGridScreen(images: List<GalleryImage>) {
                         contentScale = ContentScale.Crop
                     )
                     Icon(
-                        imageVector = if (isFavourite) {
+                        imageVector = if (image.isFavourite) {
                             Icons.Filled.Favorite
                         } else {
                             Icons.Default.FavoriteBorder
@@ -108,7 +108,11 @@ private fun GalleryGridScreen(images: List<GalleryImage>) {
                         contentDescription = "Favourite icon",
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .clickable { isFavourite = !isFavourite }
+                            .clickable {
+                                dispatchViewEvent(
+                                    GalleryViewEvent.ToggleFavourite(image.id)
+                                )
+                            }
                     )
                 }
 
