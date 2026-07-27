@@ -1,22 +1,30 @@
 package com.example.galleryapp
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.galleryapp.data.repositories.api.GalleryRepositoryApi
 import com.example.galleryapp.presentation.GalleryViewEvent
 import com.example.galleryapp.presentation.view.GalleryScreen
 import com.example.galleryapp.presentation.GalleryViewModel
 import com.example.galleryapp.presentation.IGalleryViewModel
+import com.example.galleryapp.presentation.viewstate.GalleryEvent
 import com.example.galleryapp.ui.theme.GalleryAppTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private val TAG = "MAIN_ACTIVITY";
@@ -28,6 +36,7 @@ class MainActivity : ComponentActivity() {
             viewModel.dispatchGalleryViewEvent(GalleryViewEvent.FetchImages)
             Log.d(TAG, "Permission Granted")
         } else {
+            viewModel.dispatchGalleryViewEvent(GalleryViewEvent.MediaPermissionDenied)
             Log.d(TAG, "Permission Denied")
         }
     }
@@ -41,11 +50,35 @@ class MainActivity : ComponentActivity() {
 
         requestMediaPermissionIfNeeded()
 
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.viewStateFlow.collect { viewState ->
+                    observeEventData(viewState.galleryEvent)
+                }
+            }
+        }
+
         setContent {
             GalleryAppTheme {
                 GalleryScreen(viewModel)
             }
         }
+    }
+
+    private fun observeEventData(event: GalleryEvent) {
+        when {
+            event.shouldAskMediaPermission -> {
+                viewModel.dispatchGalleryViewEvent(GalleryViewEvent.MediaPermissionsAsked)
+                openAppSettings()
+            }
+        }
+    }
+
+    private fun openAppSettings() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        val uri = Uri.fromParts("package", "com.example.galleryapp", null)
+        intent.data = uri
+        startActivity(intent)
     }
 
     private fun mediaPermissionGranted(permission: String): Boolean {

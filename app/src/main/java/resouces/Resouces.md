@@ -1,0 +1,1 @@
+1. How to open directly permission screen for a specific app: https://medium.com/@suraj_26072/how-to-open-directly-permission-screen-for-a-specific-app-d55c12e6864e
