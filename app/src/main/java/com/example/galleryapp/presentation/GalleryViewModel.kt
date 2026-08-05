@@ -3,11 +3,13 @@ package com.example.galleryapp.presentation
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.example.galleryapp.data.repositories.IGalleryRepository
 import com.example.galleryapp.presentation.viewstate.GalleryViewState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class GalleryViewModel(
     private val application: Application,
@@ -35,20 +37,22 @@ class GalleryViewModel(
     }
 
     override fun dispatchGalleryViewEvent(event: GalleryViewEvent) {
-        val updatedState = viewStateFlow.value.run {
-            when(event) {
-                GalleryViewEvent.FetchImages -> handleFetchImages()
-                GalleryViewEvent.AskMediaPermissions -> handleAskMediaPermissions()
-                GalleryViewEvent.MediaPermissionsAsked -> handleMediaPermissionsAsked()
-                GalleryViewEvent.MediaPermissionDenied -> handleMediaPermissionDenied()
-                is GalleryViewEvent.ToggleFavourite -> handleToggleFavourite(event.imageId)
+        viewModelScope.launch {
+            val updatedState = viewStateFlow.value.run {
+                when(event) {
+                    GalleryViewEvent.FetchImages -> handleFetchImages()
+                    GalleryViewEvent.AskMediaPermissions -> handleAskMediaPermissions()
+                    GalleryViewEvent.MediaPermissionsAsked -> handleMediaPermissionsAsked()
+                    GalleryViewEvent.MediaPermissionDenied -> handleMediaPermissionDenied()
+                    is GalleryViewEvent.ToggleFavourite -> handleToggleFavourite(event.imageId)
+                }
             }
-        }
 
-        _viewStateFlow.update { updatedState }
+            _viewStateFlow.update { updatedState }
+        }
     }
 
-    private fun GalleryViewState.handleFetchImages(): GalleryViewState{
+    private suspend fun GalleryViewState.handleFetchImages(): GalleryViewState{
         return copy(
             images = repository.fetchImages(application.applicationContext),
             galleryEvent = galleryEvent.copy(
@@ -77,10 +81,15 @@ class GalleryViewModel(
         return copy(mediaPermissionDenied = true)
     }
 
-    private fun GalleryViewState.handleToggleFavourite(imageId: Long): GalleryViewState {
+    private suspend fun GalleryViewState.handleToggleFavourite(imageId: Long): GalleryViewState {
         return copy(
             images = images.map { image ->
                 if(image.id == imageId) {
+                    if(repository.isInFavourites(imageId)) {
+                        repository.removeFromFavourites(imageId)
+                    } else {
+                        repository.addToFavourites(imageId)
+                    }
                     image.copy(isFavourite = !image.isFavourite)
                 } else {
                     image

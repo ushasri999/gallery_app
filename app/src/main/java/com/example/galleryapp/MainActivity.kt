@@ -17,6 +17,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.room3.Room
+import androidx.sqlite.driver.AndroidSQLiteDriver
+import com.example.galleryapp.data.database.AppDataBase
 import com.example.galleryapp.data.repositories.api.GalleryRepositoryApi
 import com.example.galleryapp.presentation.GalleryViewEvent
 import com.example.galleryapp.presentation.view.GalleryScreen
@@ -45,7 +48,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val factory = GalleryViewModel.Factory(application, GalleryRepositoryApi())
+        val db = Room.databaseBuilder<AppDataBase>(applicationContext, "favourites")
+            .setDriver(AndroidSQLiteDriver())
+            .build()
+
+        val factory = GalleryViewModel.Factory(application, GalleryRepositoryApi(db.favouritesDao()))
         viewModel = ViewModelProvider(this, factory)[GalleryViewModel::class.java]
 
         requestMediaPermissionIfNeeded()

@@ -6,9 +6,13 @@ import android.provider.MediaStore
 import com.example.galleryapp.data.entities.GalleryImageEntity
 import com.example.galleryapp.data.repositories.IGalleryRepository
 import com.example.galleryapp.domain.GalleryImage
+import com.example.galleryapp.favourite.data.FavouriteDAO
+import com.example.galleryapp.favourite.data.FavouriteEntity
 
-class GalleryRepositoryApi: IGalleryRepository {
-    override fun fetchImages(context: Context): List<GalleryImage> {
+class GalleryRepositoryApi(
+    private val favouriteDAO: FavouriteDAO
+): IGalleryRepository {
+    override suspend fun fetchImages(context: Context): List<GalleryImage> {
         val images = mutableListOf<GalleryImageEntity>()
 
         val projection = arrayOf(MediaStore.Images.Media._ID)
@@ -40,8 +44,30 @@ class GalleryRepositoryApi: IGalleryRepository {
         return images.map { it.toDomain() }
     }
 
-    private fun GalleryImageEntity.toDomain(): GalleryImage {
-        return GalleryImage(id, uri);
+    override suspend fun isInFavourites(imageId: Long): Boolean {
+        return favouriteDAO.isInFavourites(imageId) != null
+    }
+
+    override suspend fun addToFavourites(imageId: Long) {
+        favouriteDAO.addToFavourites(
+            FavouriteEntity(
+                id = imageId,
+                true
+            )
+        )
+    }
+
+    override suspend fun removeFromFavourites(imageId: Long) {
+        favouriteDAO.removeFromFavourites(imageId)
+    }
+
+
+    private suspend fun GalleryImageEntity.toDomain(): GalleryImage {
+        return GalleryImage(
+            id = id,
+            uri = uri,
+            isFavourite = isInFavourites(id)
+        )
     }
 
 }
