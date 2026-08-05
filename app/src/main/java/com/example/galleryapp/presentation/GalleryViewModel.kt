@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.galleryapp.data.repositories.IGalleryRepository
+import com.example.galleryapp.domain.GalleryImage
 import com.example.galleryapp.presentation.viewstate.GalleryViewState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -52,9 +53,21 @@ class GalleryViewModel(
         }
     }
 
-    private suspend fun GalleryViewState.handleFetchImages(): GalleryViewState{
+    private fun onImagesFetchCompleted(images: List<GalleryImage>) {
+        _viewStateFlow.update {
+            it.copy(
+                images = images,
+                isLoading = false
+            )
+        }
+    }
+
+    private fun GalleryViewState.handleFetchImages(): GalleryViewState {
+        viewModelScope.launch {
+            repository.fetchImages(application.applicationContext, ::onImagesFetchCompleted)
+        }
         return copy(
-            images = repository.fetchImages(application.applicationContext),
+            isLoading = true,
             galleryEvent = galleryEvent.copy(
                 shouldAskMediaPermission = false
             )
