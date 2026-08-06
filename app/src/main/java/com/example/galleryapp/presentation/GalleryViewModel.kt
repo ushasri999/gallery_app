@@ -64,7 +64,13 @@ class GalleryViewModel(
 
     private fun GalleryViewState.handleFetchImages(): GalleryViewState {
         viewModelScope.launch {
-            repository.fetchImages(application.applicationContext, ::onImagesFetchCompleted)
+            val images = repository.fetchImages(application.applicationContext)
+            _viewStateFlow.update {
+                it.copy(
+                    images = images,
+                    isLoading = false
+                )
+            }
         }
         return copy(
             isLoading = true,

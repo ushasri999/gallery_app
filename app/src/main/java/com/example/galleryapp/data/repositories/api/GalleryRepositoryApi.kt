@@ -12,10 +12,7 @@ import com.example.galleryapp.favourite.data.FavouriteEntity
 class GalleryRepositoryApi(
     private val favouriteDAO: FavouriteDAO
 ): IGalleryRepository {
-    override suspend fun fetchImages(
-        context: Context,
-        onImagesFetchCompleted: (List<GalleryImage>) -> Unit
-    ) {
+    override suspend fun fetchImages(context: Context): List<GalleryImage> {
         val images = mutableListOf<GalleryImageEntity>()
 
         val projection = arrayOf(MediaStore.Images.Media._ID)
@@ -44,7 +41,7 @@ class GalleryRepositoryApi(
             }
         }
 
-        onImagesFetchCompleted(images.map { it.toDomain() })
+        return images.map { it.toDomain() }
     }
 
     override suspend fun isInFavourites(imageId: Long): Boolean {
