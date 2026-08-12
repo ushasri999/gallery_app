@@ -1,9 +1,11 @@
 package com.example.galleryapp.presentation.view
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +23,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -34,13 +37,16 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.galleryapp.domain.GalleryImage
 import com.example.galleryapp.presentation.GalleryViewEvent
 import com.example.galleryapp.presentation.IGalleryViewModel
+import com.example.galleryapp.presentation.icons.filter_alt
 import com.example.galleryapp.presentation.viewstate.GalleryViewState
 
 @Composable
@@ -78,44 +84,70 @@ private fun GalleryGridScreen(
         topBar = { TopBar() },
 
         ) { innerPadding ->
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
+        Column (
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            items(
-                items = images,
-                key = { image -> image.id }
-            ) { image ->
-                Box{
-                    GlideImage(
-                        model = image.uri,
-                        contentDescription = "Image",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(1f),
-                        contentScale = ContentScale.Crop
-                    )
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = Color.Gray),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Photos on device",
+                    fontSize = 24.sp
+                )
+                IconButton(
+                    onClick = {
+
+                    }
+                ) {
                     Icon(
-                        imageVector = if (image.isFavourite) {
-                            Icons.Filled.Favorite
-                        } else {
-                            Icons.Default.FavoriteBorder
-                        },
-                        contentDescription = "Favourite icon",
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .clickable {
-                                dispatchViewEvent(
-                                    GalleryViewEvent.ToggleFavourite(image.id)
-                                )
-                            }
+                        imageVector = filter_alt,
+                        contentDescription = "filter icon",
+                        modifier = Modifier.size(48.dp)
                     )
                 }
+            }
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                items(
+                    items = images,
+                    key = { image -> image.id }
+                ) { image ->
+                    Box {
+                        GlideImage(
+                            model = image.uri,
+                            contentDescription = "Image",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(1f),
+                            contentScale = ContentScale.Crop
+                        )
+                        Icon(
+                            imageVector = if (image.isFavourite) {
+                                Icons.Filled.Favorite
+                            } else {
+                                Icons.Default.FavoriteBorder
+                            },
+                            contentDescription = "Favourite icon",
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .clickable {
+                                    dispatchViewEvent(
+                                        GalleryViewEvent.ToggleFavourite(image.id)
+                                    )
+                                }
+                        )
+                    }
 
+                }
             }
         }
     }
