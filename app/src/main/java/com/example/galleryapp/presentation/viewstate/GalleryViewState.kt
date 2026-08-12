@@ -6,6 +6,7 @@ data class GalleryViewState(
     val isLoading: Boolean = false,
     val mediaPermissionDenied: Boolean = false,
     val images: List<GalleryImage>,
+    val filteredImages: List<GalleryImage>,
     val galleryEvent: GalleryEvent = GalleryEvent()
 )
 

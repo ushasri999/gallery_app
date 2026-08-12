@@ -18,7 +18,8 @@ class GalleryViewModel(
     private val _viewStateFlow: MutableStateFlow<GalleryViewState> =
         MutableStateFlow(
             GalleryViewState(
-                images = emptyList()
+                images = emptyList(),
+                filteredImages = emptyList()
             )
         )
 
@@ -45,6 +46,8 @@ class GalleryViewModel(
                     GalleryViewEvent.MediaPermissionsAsked -> handleMediaPermissionsAsked()
                     GalleryViewEvent.MediaPermissionDenied -> handleMediaPermissionDenied()
                     is GalleryViewEvent.ToggleFavourite -> handleToggleFavourite(event.imageId)
+                    is GalleryViewEvent.FilterAll -> handleFilterAll()
+                    is GalleryViewEvent.FilterFavourites -> handleFilterFavourites()
                 }
             }
 
@@ -57,6 +60,7 @@ class GalleryViewModel(
             val images = repository.fetchImages(application.applicationContext)
             _viewStateFlow.update {
                 it.copy(
+                    filteredImages = images,
                     images = images,
                     isLoading = false
                 )
@@ -91,19 +95,50 @@ class GalleryViewModel(
     }
 
     private suspend fun GalleryViewState.handleToggleFavourite(imageId: Long): GalleryViewState {
-        return copy(
-            images = images.map { image ->
-                if(image.id == imageId) {
-                    if(repository.isInFavourites(imageId)) {
-                        repository.removeFromFavourites(imageId)
-                    } else {
-                        repository.addToFavourites(imageId)
-                    }
-                    image.copy(isFavourite = !image.isFavourite)
+        val updatedImages = images.map { image ->
+            if(image.id == imageId) {
+                if(repository.isInFavourites(imageId)) {
+                    repository.removeFromFavourites(imageId)
                 } else {
-                    image
+                    repository.addToFavourites(imageId)
                 }
+                image.copy(isFavourite = !image.isFavourite)
+            } else {
+                image
             }
+        }
+
+        val isInFilteredImages = filteredImages.any {
+            it.id == imageId
+        }
+
+        val updatedFilteredImages = if (isInFilteredImages) {
+            filteredImages.filter {
+                it.id != imageId
+            }
+        } else {
+            val imageToAdd = updatedImages.first {
+                it.id == imageId
+            }
+
+            filteredImages + imageToAdd
+        }
+
+        return copy(
+            images = updatedImages,
+            filteredImages = updatedFilteredImages
+        )
+    }
+
+    private fun GalleryViewState.handleFilterAll(): GalleryViewState {
+        return copy(
+            filteredImages = images
+        )
+    }
+
+    private fun GalleryViewState.handleFilterFavourites(): GalleryViewState {
+        return copy(
+            filteredImages = images.filter { it.isFavourite }
         )
     }
 }

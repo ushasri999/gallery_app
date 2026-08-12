@@ -6,4 +6,6 @@ sealed class GalleryViewEvent {
     data object MediaPermissionsAsked: GalleryViewEvent()
     data object MediaPermissionDenied: GalleryViewEvent()
     data class ToggleFavourite(val imageId: Long): GalleryViewEvent()
+    data object FilterAll: GalleryViewEvent()
+    data object FilterFavourites: GalleryViewEvent()
 }
